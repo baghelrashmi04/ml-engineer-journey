@@ -2,8 +2,9 @@
 ** 📚 Learned - While i was integrating RAG in my project , i tried to build it from scratch to have a strong mental model and understanding how it works under the hood. Because we are never required to write it from scratch we never get to understand it better , What is vector embedding , cosine similiarity , tokenization , word to vector and sentence embedding works.  
      Here is the leightweight engine I engineered to understand token tracking , spatial math and document retreival:)..
 
+'''
+A tiny vector store , a whole system in itself
 
-# a tiny vector store , a whole system in itself
 class mini_vectore_store:
   def __init__(self):
     self.records=[] # Changed to a list
@@ -37,9 +38,9 @@ class mini_vectore_store:
       results.append((items["text"],score))
     results.sort(key=lambda x: x[1], reverse=True)
     return results[:top_k]
-# initialising system
+ initialising system
 store= mini_vectore_store()
-# adding some docs
+ adding some docs
 store.add_document("The golden banana was ripe.", [0.9, 0.1, 0.0])
 store.add_document("The cute puppy barked loudly.", [0.0, 0.9, 0.1])
 store.add_document("The sports car has a loud engine.", [0.1, 0.0, 0.9])
@@ -48,7 +49,7 @@ search_query_vector = [0.1, 0.8, 0.0]
 
 matches=store.query(search_query_vector, top_k=1)
 print(matches)
-
+'''
 
 
 
