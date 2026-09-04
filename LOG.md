@@ -1,7 +1,8 @@
 ## 2026-09-03 
 ** 📚 Learned - While i was inetgrating RAG in my project , i tried to build it from scratch to have a strong mental model and understanding how it works under the hood. Beacuse we are never required to write it from scratch we never get to understand it better , What is vector embedding , cosine similiarity , tokenization , word to vector and sentence embedding works.  
+     Here is the leightweight engine I engineered to understand token tracking , spatial math and document retreival:)..      
 
-
+    
 
 
 ## 2026-09-03 — Recap: the two months before this log existed
