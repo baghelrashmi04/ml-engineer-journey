@@ -1,3 +1,86 @@
+## 2026-09-03
+**🐛 Bug: Semantic Keyword Matching
+
+Added semantic search feature in Phase-II of my resume analyser project to improves the ats. And while fixing it i learned the very approch to solve a problem , the mental model which includes:-
+
+- Isolate the bug don't guess, in big pipelines isolating the code is the quickest way to solve a problem . Reproduce the same symptom in the smallest way possible.
+- Verify your assumption with evident not memory. Sometimes its not enough to go with assumption that, i have fixed this it must work, verify it to have a solid proof.
+- Work backward from the symptom to the source one link or one step at a time, targeting a single function further a single input which creates issue is more relevant then targeting the whole file of programme.
+- When code looks correct but behaves wrong, question your understanding of data not just code. Sometimes there isn't a real bug its just fundamentally built that way which needs to be fixed.
+
+The problem & how i fixed it:
+The initial implementation of `semantic_keywords` failed to match closely related terms like `"machine learning"` to `"ml"` or `"data scientist"` within full bullet points, even when lowering the similarity threshold to `0.55`.
+
+#### The initial implementation: 
+```
+semantic_model=SentenceTransformer('BAAI/bge-small-en-v1.5')
+def semantic_keywords(missing_keywords: list[str],resume_bullets: list[str], threshold: float=0.55) ->dict:
+    new_matched=[]
+    still_missing=[]
+    
+    for keyword in missing_keywords:
+        keywords_embedding=semantic_model.encode(keyword)
+        bullet_embedding=semantic_model.encode(resume_bullets)
+        cosine_sim=util.cos_sim(keywords_embedding,bullet_embedding)
+        best_score= float(cosine_sim.max())
+        
+        if best_score>=threshold:
+            new_matched.append(keyword)
+        else:
+            still_missing.append(keyword)
+    return {"new_matched": new_matched, "still_missing":still_missing}
+```
+I isolated the function first to check if its working:
+```
+python3 -c "import scoring; print(scoring.semantic_keywords(['data scientist', 'machine learning', 'errors'], ['she is a machine learning and python engineer', 'she fixes all her bugs impressively']))"
+
+```
+result:
+```
+{'new_matched': [], 'still_missing': ['data scientist', 'machine learning', 'errors']}
+```
+
+Root Cause & Evaluated Solutions
+Comparing a single-word keyword vector directly against a sentence vector dilutes sentence context, causing low similarity scores.
+
+Option 1 (Lowering Threshold): Lowering threshold from 0.75 down to 0.30 matched keywords, but introduced false positives (e.g., matching unrelated tech terms like kubernetes to python).
+
+Option 2 (Cross-Encoders): Switching from a Bi-Encoder to a Cross-Encoder models token-level interactions directly and yields higher accuracy for short-to-long text matching, but introduces additional latency.
+
+Option 3 (Optimized Embeddings & Pre-computation): Pre-encoding bullet points outside the loop and utilizing a dedicated domain embedding model (BAAI/bge-small-en-v1.5) with an adjusted threshold.
+```
+(resumeTool) rashmibaghel@Rashmi-Mac backend % python3 -c "import scoring; print(scoring.semantic_keywords(['data scientist', 'machine learning', 'errors'], ['she is a machine learning and python engineer', 'she fixes all her bugs impressively'], threshold=0.3))"
+```
+result:
+```
+{'new_matched': ['data scientist', 'machine learning'], 'still_missing': ['errors']}
+```
+
+ 
+fixed code :
+```
+semantic_model=SentenceTransformer('BAAI/bge-small-en-v1.5')
+def semantic_keywords(missing_keywords: list[str],resume_bullets: list[str], threshold: float=0.8) ->dict:
+    new_matched=[]
+    still_missing=[]
+    
+    for keyword in missing_keywords:
+        keywords_embedding=semantic_model.encode(keyword)
+        bullet_embedding=semantic_model.encode(resume_bullets)
+        cosine_sim=util.cos_sim(keywords_embedding,bullet_embedding)
+        best_score= float(cosine_sim.max())
+        
+        if best_score>=threshold:
+            new_matched.append(keyword)
+        else:
+            still_missing.append(keyword)
+    return {"new_matched": new_matched, "still_missing":still_missing}
+
+```
+
+
+
+
 ## 2026-09-03 
 📚 Learned - While i was integrating RAG in my project , i tried to build it from scratch to have a strong mental model and understanding how it works under the hood. Because we are never required to write it from scratch we never get to understand it better , What is vector embedding , cosine similiarity , tokenization , word to vector and sentence embedding works.  
      Here is the leightweight engine I engineered to understand token tracking , spatial math and document retreival:)..
